@@ -1,1 +1,154 @@
 <!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Task - ระบบจัดการงานส่วนตัว</title>
+    <!-- Google Fonts for Clean Thai Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 1. HEADER -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="app-title">My Task</h1>
+                <p id="header-today-date" class="header-date">กำลังโหลดวันที่...</p>
+            </div>
+            <div class="header-right">
+                <button type="button" id="btn-open-add-modal" class="btn btn-primary">
+                    + เพิ่มงาน
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="app-main">
+            <!-- 3. ปฏิทิน -->
+            <section class="card calendar-card" aria-label="ปฏิทินงาน">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button type="button" id="btn-prev-month" class="btn btn-secondary btn-sm" aria-label="เดือนก่อนหน้า">&lt;</button>
+                        <h2 id="calendar-month-year" class="calendar-title">ตุลาคม 2569</h2>
+                        <button type="button" id="btn-next-month" class="btn btn-secondary btn-sm" aria-label="เดือนถัดไป">&gt;</button>
+                    </div>
+                    <button type="button" id="btn-today" class="btn btn-outline btn-sm">วันนี้</button>
+                </div>
+
+                <div class="calendar-weekdays" aria-hidden="true">
+                    <span>จ</span>
+                    <span>อ</span>
+                    <span>พ</span>
+                    <span>พฤ</span>
+                    <span>ศ</span>
+                    <span>ส</span>
+                    <span>อา</span>
+                </div>
+
+                <div id="calendar-days-grid" class="calendar-grid">
+                    <!-- Days will be dynamically rendered here -->
+                </div>
+            </section>
+
+            <!-- 2-COLUMN SECTION: งานวันที่เลือก & งานที่ยังไม่เสร็จ -->
+            <div class="task-columns">
+                <!-- 4. งานของวันที่เลือก -->
+                <section class="card task-column-card" aria-label="งานของวันที่เลือก">
+                    <div class="column-header">
+                        <div>
+                            <h2 id="selected-date-heading" class="column-title">งานวันที่ 1 ตุลาคม 2569</h2>
+                            <p id="selected-date-count" class="column-subtitle">0 งาน</p>
+                        </div>
+                    </div>
+                    <div id="selected-date-task-list" class="task-list">
+                        <!-- Task items rendered here -->
+                    </div>
+                </section>
+
+                <!-- 5. งานที่ยังไม่เสร็จ -->
+                <section class="card task-column-card" aria-label="งานที่ยังไม่เสร็จ">
+                    <div class="column-header">
+                        <div>
+                            <h2 class="column-title">งานที่ยังไม่เสร็จ</h2>
+                            <p id="pending-tasks-count" class="column-subtitle">0 งานค้าง</p>
+                        </div>
+                    </div>
+                    <div id="pending-task-list" class="task-list">
+                        <!-- Pending task items rendered here -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- 6. สรุปงาน -->
+            <section class="card summary-card" aria-label="สรุปงาน">
+                <h2 class="section-title">สรุปงาน</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">งานทั้งหมด</span>
+                        <strong id="summary-total" class="summary-value">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">เสร็จแล้ว</span>
+                        <strong id="summary-completed" class="summary-value text-success">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">ยังไม่เสร็จ</span>
+                        <strong id="summary-pending" class="summary-value text-pending">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">เลยกำหนด</span>
+                        <strong id="summary-overdue" class="summary-value text-danger">0</strong>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 2 & 7. MODAL เพิ่ม / แก้ไขงาน -->
+    <div id="task-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title" class="modal-title">เพิ่มงานใหม่</h3>
+                <button type="button" id="btn-close-modal-x" class="btn-icon" aria-label="ปิดหน้าต่าง">&times;</button>
+            </div>
+            <form id="task-form" novalidate>
+                <input type="hidden" id="task-id">
+
+                <div class="form-group">
+                    <label for="task-title">ชื่องาน <span class="required">*</span></label>
+                    <input type="text" id="task-title" class="form-control" placeholder="เช่น ทำการบ้าน Python" required>
+                    <span id="title-error" class="error-text hidden">กรุณาระบุชื่องาน</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-desc">รายละเอียดงาน (ไม่บังคับ)</label>
+                    <textarea id="task-desc" class="form-control" rows="3" placeholder="ระบุรายละเอียดเพิ่มเติม..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-date">วันที่ต้องทำ <span class="required">*</span></label>
+                        <input type="date" id="task-date" class="form-control" required>
+                        <span id="date-error" class="error-text hidden">กรุณาเลือกวันที่ต้องทำ</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-time">เวลา (ไม่บังคับ)</label>
+                        <input type="time" id="task-time" class="form-control">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btn-cancel-modal" class="btn btn-secondary">ยกเลิก</button>
+                    <button type="submit" id="btn-save-task" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
